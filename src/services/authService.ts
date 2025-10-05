@@ -3,23 +3,25 @@ import {
   AuthUser,
   LoginRequest,
   CreateUserRequest,
-  UpdatePasswordRequest
+  UpdatePasswordRequest,
+  LoginResponse
 } from '../types/user.types';
+
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
 export const authService = {
-  login: async (credentials: LoginRequest): Promise<AuthUser> => {
-    const response = await axios.post<AuthUser>(`${API_URL}/auth/login`, credentials);
-    return response.data;
-  },
+  login: async (credentials: LoginRequest): Promise<LoginResponse> => {
+  const response = await axios.post<LoginResponse>(`${API_URL}/auth/login`, credentials);
+  return response.data;
+},
+
 
   register: async (userData: CreateUserRequest): Promise<void> => {
     await axios.post(`${API_URL}/auth/register`, userData);
   },
 
   logout: async (): Promise<void> => {
-    // Optionally notify backend or just clear client storage
     localStorage.removeItem('token');
   },
 

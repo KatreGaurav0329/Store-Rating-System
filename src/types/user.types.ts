@@ -37,3 +37,9 @@ export interface UpdatePasswordRequest {
   currentPassword: string;
   newPassword: string;
 }
+export type LoginResponse = {
+  token: string;
+  user: AuthUser;       
+  role: string;
+  redirectTo: string;
+};

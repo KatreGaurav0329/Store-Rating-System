@@ -5,6 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { loginValidationSchema } from '../../../utils/validation';
 import { LoginRequest } from '../../../types/user.types';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 interface LoginFormProps {
@@ -14,6 +15,7 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const { login } = useAuth();
   const [error, setError] = React.useState<string>('');
+  const navigate = useNavigate();
 
   const initialValues: LoginRequest = {
     email: '',
@@ -26,8 +28,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   ) => {
     try {
       setError('');
-      await login(values);
-      onSuccess?.();
+      const response = await login(values);
+if (response?.role === 'SYSTEM_ADMIN') {
+  navigate('/admin-dashboard');
+} else if (response?.role === 'STORE_OWNER') {
+  navigate('/store-dashboard');
+} else if (response?.role === 'NORMAL_USER') {
+  navigate('/user-dashboard');
+} else {
+  navigate('/');
+}
+onSuccess?.();
+
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

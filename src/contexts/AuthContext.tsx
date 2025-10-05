@@ -3,10 +3,15 @@ import { authService } from '../services/authService';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { User, AuthUser, LoginRequest, UserRole, CreateUserRequest, UpdatePasswordRequest } from '../types/user.types';
 
-
+export type LoginResponse = {
+  token: string;
+  user: any; // or your User type/interface
+  role: string;
+  redirectTo: string;
+};
 interface AuthContextType {
   user: AuthUser | null;
-  login: (credentials: LoginRequest) => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<LoginResponse>;
   logout: () => void;
   register: (userData: CreateUserRequest) => Promise<void>;
   updatePassword: (passwordData: UpdatePasswordRequest) => Promise<void>;
@@ -53,18 +58,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (credentials: LoginRequest): Promise<void> => {
-    try {
-      setLoading(true);
-      const response = await authService.login(credentials);
-      setUser(response);
-      localStorage.setItem('token', response.token);
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
+  const login = async (credentials: LoginRequest): Promise<LoginResponse> => {
+  try {
+    setLoading(true);
+    const response = await authService.login(credentials);
+    setUser({
+      ...response.user,
+      token: response.token,
+      refreshToken: '',  // add response.refreshToken if available
+      expiresAt: '',     // add response.expiresAt if available
+    });
+    localStorage.setItem('token', response.token);
+    return response;
+  } catch (error) {
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const logout = (): void => {
     setUser(null);
