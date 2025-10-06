@@ -5,7 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { loginValidationSchema } from '../../../utils/validation';
 import { LoginRequest } from '../../../types/user.types';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 interface LoginFormProps {
@@ -16,6 +16,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const { login } = useAuth();
   const [error, setError] = React.useState<string>('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
 
   const initialValues: LoginRequest = {
     email: '',
@@ -29,16 +31,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     try {
       setError('');
       const response = await login(values);
-if (response?.role === 'SYSTEM_ADMIN') {
-  navigate('/admin-dashboard');
-} else if (response?.role === 'STORE_OWNER') {
-  navigate('/store-dashboard');
-} else if (response?.role === 'NORMAL_USER') {
-  navigate('/user-dashboard');
-} else {
-  navigate('/');
-}
-onSuccess?.();
+      navigate(response.redirectTo);
+      if (from) {
+      navigate(from);
+      } else {
+      // fallback role-based navigation as backup
+      if (response?.role === 'SYSTEM_ADMIN') {
+        navigate('/admin-dashboard');
+      } else if (response?.role === 'STORE_OWNER') {
+        navigate('/store-dashboard');
+      } else if (response?.role === 'NORMAL_USER') {
+        navigate('/user-dashboard');
+      } else {
+        navigate('/');
+      }
+    }
+      onSuccess?.();
 
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');

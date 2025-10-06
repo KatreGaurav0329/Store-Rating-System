@@ -41,7 +41,7 @@ const StoreList: React.FC = () => {
         ? await storeService.getStoresWithUserRatings(params)
         : await storeService.getStores(params);
 
-      setStores(response.stores);
+      setStores(response.stores ?? []);
         setTotalPages(response.totalPages);
 
       setCurrentPage(page);

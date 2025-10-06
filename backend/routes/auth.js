@@ -52,20 +52,20 @@ router.post('/login', [
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
     const { password_hash, ...userData } = user; 
-let redirectTo = '/';
-if (user.role === 'SYSTEM_ADMIN') {
-  redirectTo = '/admin-dashboard';
-} else if (user.role === 'STORE_OWNER') {
-  redirectTo = '/store-dashboard';
-} else if (user.role === 'NORMAL_USER') {
-  redirectTo = '/user-dashboard';
-}
-res.json({ 
-  token, 
-  user: userData, 
-  role: user.role, 
-  redirectTo 
-});
+    let redirectTo = '/';
+    if (user.role === 'SYSTEM_ADMIN') {
+      redirectTo = '/admin-dashboard';
+    } else if (user.role === 'STORE_OWNER') {
+      redirectTo = '/store-dashboard';
+    } else if (user.role === 'NORMAL_USER') {
+      redirectTo = '/user-dashboard';
+    }
+    res.json({ 
+      token, 
+      user: userData, 
+      role: user.role, 
+      redirectTo 
+    });
 
   } catch(err) {
     res.status(500).json({ error: err.message });

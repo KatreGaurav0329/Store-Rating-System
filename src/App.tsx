@@ -11,6 +11,7 @@ import { UserRole } from './types/user.types';
 import LoginPage from './features/auth/components/LoginPage';
 import RegisterPage from './features/auth/components/RegisterPage';
 import AdminDashboard from './features/admin/components/AdminDashboard';
+import UserDashboard from './features/users/components/UserDashboard';
 import UserManagement from './features/admin/components/UserManagement';
 import StoreManagement from './features/admin/components/StoreManagement';
 import StoreList from './features/stores/components/StoreList';
@@ -77,6 +78,15 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={[UserRole.SYSTEM_ADMIN]}>
                         <StoreManagement />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="user-dashboard"
+                    element={
+                      <ProtectedRoute allowedRoles={[UserRole.NORMAL_USER]}>
+                        <UserDashboard />
                       </ProtectedRoute>
                     }
                   />
