@@ -10,8 +10,8 @@ const UnauthorizedPage: React.FC = () => {
       <Alert variant="danger">
         <Alert.Heading>Unauthorized Access</Alert.Heading>
         <p>You don't have permission to access this page.</p>
-        <Button variant="primary" onClick={() => navigate('/stores')}>
-          Go to Stores
+        <Button variant="primary" onClick={() => navigate('/login')}>
+          Go to Login
         </Button>
       </Alert>
     </Container>

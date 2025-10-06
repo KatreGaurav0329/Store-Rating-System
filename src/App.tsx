@@ -1,11 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/common/ProtectedRoute/ProtectedRoute';
 import Layout from './components/common/Layout/Layout';
 import { UserRole } from './types/user.types';
+
 
 // Page imports
 import LoginPage from './features/auth/components/LoginPage';
@@ -19,17 +21,35 @@ import StoreDetail from './features/stores/components/StoreDetail';
 import StoreOwnerDashboard from './features/stores/components/StoreOwnerDashboard';
 import UserProfile from './features/users/components/UserProfile';
 import UnauthorizedPage from './components/common/UnauthorizedPage';
-
+import ChangePassword from './features/account/ChangePassword';
 // CSS imports
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/globals.css';
+
+const HomeRedirect = () => {
+  const { isAuthenticated, user } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if (user?.role === 'SYSTEM_ADMIN') {
+    return <Navigate to="/admin-dashboard" replace />;
+  }
+  if (user?.role === 'STORE_OWNER') {
+    return <Navigate to="/store-dashboard" replace />;
+  }
+  if (user?.role === 'NORMAL_USER') {
+    return <Navigate to="/user-dashboard" replace />;
+  }
+  return <Navigate to="/login" replace />;
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000, 
     },
   },
 });
@@ -46,7 +66,8 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/unauthorized" element={<UnauthorizedPage />} />
-
+                {/* Default home redirect */}
+                <Route path="" element={<HomeRedirect />} />
                 {/* Protected routes */}
                 <Route
                   path="/"
@@ -58,7 +79,7 @@ function App() {
                 >
                   {/* Admin routes */}
                   <Route
-                    path="admin"
+                    path="admin-dashboard"
                     element={
                       <ProtectedRoute allowedRoles={[UserRole.SYSTEM_ADMIN]}>
                         <AdminDashboard />
@@ -100,18 +121,16 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                  <Route path="change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+
 
                   {/* Normal User and shared routes */}
                   <Route path="stores" element={<StoreList />} />
                   <Route path="stores/:storeId" element={<StoreDetail />} />
                   <Route path="profile" element={<UserProfile />} />
 
-                  {/* Default redirect */}
-                  <Route
-                    path=""
-                    element={<Navigate to="/stores" replace />}
-                  />
-                </Route>
+                  </Route>
+
 
                 {/* Catch all route */}
                 <Route path="*" element={<Navigate to="/login" replace />} />

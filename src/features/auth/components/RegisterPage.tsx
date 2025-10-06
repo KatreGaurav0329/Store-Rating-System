@@ -4,6 +4,7 @@ import { Container, Row, Col, Card, Button, Form as BootstrapForm, Alert } from 
 import * as Yup from 'yup';
 import { useAuth } from '../../../contexts/AuthContext';
 import { CreateUserRequest } from '../../../types/user.types';
+import { UserRole } from '../../../types/user.types';
 
 const registerValidationSchema = Yup.object().shape({
   name: Yup.string()
@@ -31,13 +32,15 @@ const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const [error, setError] = React.useState<string>('');
 
-  const initialValues: Omit<CreateUserRequest, 'role'> & { confirmPassword: string } = {
-    name: '',
-    email: '',
-    address: '',
-    password: '',
-    confirmPassword: '',
-  };
+  const initialValues: CreateUserRequest & { confirmPassword: string } = {
+  name: '',
+  email: '',
+  address: '',
+  password: '',
+  confirmPassword: '',
+  role: UserRole.NORMAL_USER, // or any default
+};
+
 
   const handleSubmit = async (
     values: typeof initialValues,
@@ -50,8 +53,17 @@ const RegisterPage: React.FC = () => {
       resetForm();
       alert('Registration successful, please login.');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
-    } finally {
+  console.error('Full registration error:', err);
+  // Also log the backend error response, if present
+  if (err.response && err.response.data) {
+    console.error('Backend error:', err.response.data);
+  }
+  setError(
+    Array.isArray(err.response?.data?.errors)
+      ? err.response.data.errors[0]?.msg
+      : err.response?.data?.message || 'Registration failed'
+  );
+} finally {
       setSubmitting(false);
     }
   };

@@ -31,21 +31,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     try {
       setError('');
       const response = await login(values);
-      navigate(response.redirectTo);
-      if (from) {
-      navigate(from);
-      } else {
-      // fallback role-based navigation as backup
-      if (response?.role === 'SYSTEM_ADMIN') {
-        navigate('/admin-dashboard');
-      } else if (response?.role === 'STORE_OWNER') {
-        navigate('/store-dashboard');
-      } else if (response?.role === 'NORMAL_USER') {
-        navigate('/user-dashboard');
-      } else {
-        navigate('/');
-      }
-    }
+      navigate(from === '/' ? response.redirectTo : from);
+
       onSuccess?.();
 
     } catch (err: any) {
